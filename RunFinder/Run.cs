@@ -20,13 +20,10 @@ namespace RunFinder
 
         public override string ToString()
         {
-            // possible optimization: memoize the result once it is computed
-            // computation may be expensive if the run is large
-            // if this computation is memoized, the class must be immutable or remember to clear
-            // the memoized value if the inputs to the computation change
-            var range = Enumerable.Range(Min, Max - Min + 1).Select(i => i.ToString()).ToArray();
-            var numbers = string.Join(",", range);
-            return "{" + numbers + "}";
+            if (Max == Min)
+                return string.Format("{{{0}}}", Min);
+
+            return string.Format("{{{0}, {1}}}", Min, Max);
         }
 
         public bool IsExtendedBy(int n)
@@ -50,6 +47,17 @@ namespace RunFinder
                 return 1;
 
             return this.Min.CompareTo(other.Min);
+        }
+
+        public string ToExpandedString(string format)
+        {
+            // possible optimization: memoize the result once it is computed
+            // computation may be expensive if the run is large
+            // if this computation is memoized, the class must be immutable or remember to clear
+            // the memoized value if the inputs to the computation change
+            var range = Enumerable.Range(Min, Max - Min + 1).Select(i => i.ToString()).ToArray();
+            var numbers = string.Join(",", range);
+            return "{" + numbers + "}";
         }
     }
 }

@@ -8,37 +8,48 @@ namespace RunFinder
     {
         static void Main(string[] args)
         {
-            var timer = System.Diagnostics.Stopwatch.StartNew();
-            var numbers = GenerateNumbers();
+            var numbers = GenerateNumbers(1000000, 10000000).ToList();
+            Console.WriteLine("Finding runs.");
+
             var runs = new SortedList<int, Run>();
+
+            var timer = System.Diagnostics.Stopwatch.StartNew();
             foreach (var n in numbers)
             {
                 int? index = runs.FindClosestIndex(n);
                 Add(runs, n, index);
             }
-
             timer.Stop();
             Print(runs.Values);
             Console.WriteLine("Completed in {0}.", timer.Elapsed);
             Console.ReadLine();
         }
 
-        private static IEnumerable<int> GenerateNumbers()
+        private static IEnumerable<int> GenerateNumbers(int count, int range)
         {
             //return new[] { 1, 59, 12, 43, 4, 58, 5, 13, 46, 3, 6 };
             //return new[] { 1, 3, 5, 7, 6 };
 
-            int tickCount = Environment.TickCount;
+            System.Diagnostics.Debug.Assert(count <= range, "Cannot generate more numbers than are in the range.");
+
+            int tickCount = 51545819; // Environment.TickCount;
             Console.WriteLine("Seed: {0}", tickCount); // so we can re-run the exact same inputs again
 
             var random = new Random(tickCount);
             var numbers = new HashSet<int>();
 
-            while (numbers.Count < 20)
+            while (numbers.Count < count)
             {
-                int n = random.Next(60);
-                if (numbers.Add(n))
-                    yield return n;
+                int n = random.Next(range);
+
+                // build some bias into the number generation so that numbers tend to clump when collisions occur
+                int sign = n % 2 == 0 ? 1 : -1;
+                while (!numbers.Add(n))
+                {
+                    n += sign;
+                }
+
+                yield return n;
             }
         }
 
